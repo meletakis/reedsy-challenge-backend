@@ -64,4 +64,87 @@ RSpec.describe Product, type: :model do
       end
     end
   end
+
+  describe '#get_price_with_discount' do
+    RSpec.shared_examples 'price without any discount' do |quantity|
+      it 'returns the price multiplied with quantity' do
+        expect(
+          product.get_price_with_discount(quantity)
+        ).to eq(product_price * quantity)
+      end
+    end
+
+    let(:product_price) { 100 }
+    let(:product) do
+      FactoryBot.create(:product, price_in_cents: product_price)
+    end
+
+    context 'when there is no discount' do
+      include_examples 'price without any discount', 2
+    end
+
+    context "when there is a discount in product's category" do
+      let!(:discount) do
+        FactoryBot.create(
+          :discount,
+          category: product.category,
+          from_num_of_items: 1,
+        )
+      end
+
+      context 'but it is disabled' do
+        include_examples 'price without any discount', 2
+      end
+
+      context 'and it is enabled' do
+        let!(:discount) do
+          FactoryBot.create(
+            :discount,
+            :enabled,
+            volume: 2,
+            category: product.category,
+            from_num_of_items: 10,
+          )
+        end
+
+        context 'but given quantity is not enough for the discount' do
+          include_examples 'price without any discount', 5
+        end
+
+        context 'and given quantity is enough for the discount' do
+          it 'returns price with discount' do
+            expect(product.get_price_with_discount(20)).to eq(1960)
+          end
+        end
+      end
+    end
+
+    context 'when there are many discounts enabled for a category' do
+      let!(:discount_1) do
+        FactoryBot.create(
+          :discount,
+          :enabled,
+          volume: 2,
+          category: product.category,
+          from_num_of_items: 10,
+        )
+      end
+
+      let!(:discount_2) do
+        FactoryBot.create(
+          :discount,
+          :enabled,
+          volume: 4,
+          category: product.category,
+          from_num_of_items: 20,
+        )
+      end
+
+      context 'and given quantity is enough for all discounts' do
+        it 'selects the biggest discount' do
+          expect(product.get_price_with_discount(20)).to eq(1920)
+        end
+      end
+    end
+  end
 end
