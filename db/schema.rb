@@ -10,11 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_10_20_190043) do
+ActiveRecord::Schema[7.1].define(version: 2023_10_21_160824) do
   create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "discounts", force: :cascade do |t|
+    t.integer "category_id"
+    t.integer "volume", limit: 2, null: false
+    t.integer "from_num_of_items", limit: 3, null: false
+    t.boolean "enabled", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_discounts_on_category_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -26,5 +36,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_20_190043) do
     t.index ["category_id"], name: "index_products_on_category_id"
   end
 
+  add_foreign_key "discounts", "categories"
   add_foreign_key "products", "categories"
 end
