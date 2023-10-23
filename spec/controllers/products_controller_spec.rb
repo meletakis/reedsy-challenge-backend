@@ -44,7 +44,7 @@ RSpec.describe 'Products', type: :request do
        it 'returns the product with the new price' do
         subject
 
-         expect(JSON.parse(response.body)['price_in_cents']).to eq(new_price)
+         expect(JSON.parse(response.body)['new_price']).to eq(new_price)
        end
 
        it 'returns a success status' do
