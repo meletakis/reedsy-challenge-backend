@@ -9,4 +9,5 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   resources :products, only: [:index, :update]
+  resources :products_prices, only: [:index]
 end
