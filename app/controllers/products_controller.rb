@@ -9,7 +9,7 @@ class ProductsController < ApplicationController
         id: product.id,
         code: product.category.name,
         name: product.name,
-        price: (product.price_in_cents * 100).to_f
+        price: (product.price_in_cents / 100).to_f
       }
     end
 

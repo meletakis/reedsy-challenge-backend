@@ -2,20 +2,31 @@ require 'rails_helper'
 
 RSpec.describe 'Products', type: :request do
   describe 'GET /index' do
-    let!(:prodcuts) { FactoryBot.create_list(:product, 5) }
+    let!(:products) { FactoryBot.create_list(:product, 5) }
+    let!(:a_product) { FactoryBot.create(:product, price_in_cents: 1000) }
+
+    let(:a_products_returned_price) do
+      JSON.parse(response.body).find { |pr| pr['id'] == a_product.id }['price']
+    end
 
     subject { get '/products' }
 
     it 'returns all products' do
       subject
 
-      expect(JSON.parse(response.body).size).to eq(5)
+      expect(JSON.parse(response.body).size).to eq(6)
     end
 
     it 'returns status code 200' do
       subject
 
       expect(response).to have_http_status(:success)
+    end
+
+    it 'returns the correct price rounded to euros' do
+      subject
+
+      expect(a_products_returned_price).to eq(10.0)
     end
   end
 
